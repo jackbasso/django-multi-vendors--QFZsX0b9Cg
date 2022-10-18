@@ -1,0 +1,14 @@
+python -m venv petnet_env
+.\petnet_env\Scripts\activate
+pip install django
+django-admin startproject petnet
+cd petnet
+python manage.py migrate
+python manage.py createsuperuser (admin@admin.com 123)
+python manage.py runserver
+deactivate
+python manage.py startapp core
+  core->views.py-> petnet->urls.py (from core.views import frontpage)
+
+29:54
+https://www.youtube.com/watch?v=-QFZsX0b9Cg&list=PLpyspNLjzwBkRti2Ur9I9EdEEkF3PHIr_&index=2
