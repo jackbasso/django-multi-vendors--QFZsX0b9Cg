@@ -8,6 +8,9 @@ def vendor_detail(request, pk):
   user = User.objects.get(pk=pk)
   return render(request, 'userprofile/vendor_detail.html', { 'user':user})
 
+def myaccount(request):
+  return render(request, 'userprofile/myaccount.html')
+
 def signup(request):
   if request.method == 'POST':
     form = UserCreationForm(request.POST)
