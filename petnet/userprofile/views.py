@@ -8,6 +8,9 @@ def vendor_detail(request, pk):
   user = User.objects.get(pk=pk)
   return render(request, 'userprofile/vendor_detail.html', { 'user':user})
 
+def my_store(request):
+  return render(request, 'userprofile/mystore.html')
+
 def myaccount(request):
   return render(request, 'userprofile/myaccount.html')
 
