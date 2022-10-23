@@ -32,7 +32,13 @@ def add_product(request):
   else:
     form = ProductForm()
 
-  return render(request, 'userprofile/add_product.html', { 'form':form})
+  return render(request, 'userprofile/add_product.html', { 'form':form, 'title':'Add product' })
+
+@login_required
+def edit_product(request, pk):
+  product = Product.objects.filter(user=request.user).get(pk=pk)
+  form = ProductForm(instance=product)
+  return render(request, 'userprofile/add_product.html', { 'form':form, 'title':'Edit product' })
 
 @login_required
 def myaccount(request):
