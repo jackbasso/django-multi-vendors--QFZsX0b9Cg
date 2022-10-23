@@ -1,16 +1,25 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from .models import Userprofile
+from store.forms import ProductForm
+from store.models import Category, Product
 
 def vendor_detail(request, pk):
   user = User.objects.get(pk=pk)
   return render(request, 'userprofile/vendor_detail.html', { 'user':user})
 
+@login_required
 def my_store(request):
   return render(request, 'userprofile/mystore.html')
 
+@login_required
+def add_product(request):
+  return render(request, 'userprofile/add_product.html')
+
+@login_required
 def myaccount(request):
   return render(request, 'userprofile/myaccount.html')
 
