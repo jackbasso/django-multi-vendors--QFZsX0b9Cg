@@ -37,7 +37,14 @@ def add_product(request):
 @login_required
 def edit_product(request, pk):
   product = Product.objects.filter(user=request.user).get(pk=pk)
-  form = ProductForm(instance=product)
+
+  if request.method == 'POST':
+    form = ProductForm(request.POST, request.FILES, instance=product)
+    if form.is_valid():
+      form.save()
+      return redirect('my_store')
+  else:
+    form = ProductForm(instance=product) # fill the form with product info
   return render(request, 'userprofile/add_product.html', { 'form':form, 'title':'Edit product' })
 
 @login_required
