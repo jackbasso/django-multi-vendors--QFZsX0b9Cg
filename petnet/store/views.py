@@ -1,6 +1,32 @@
 from django.db.models import Q  #For searchs
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from .cart import Cart
+
 from .models import Category, Product
+
+def add_to_cart(request, product_id):
+  cart = Cart(request) # create new instance for the cart
+  cart.add(product_id) # add product id
+  return redirect('cart_view')
+
+def change_quantity(request, product_id):
+  action = request.GET.get('action', '')
+  if action:
+    quantity = 1
+    if action == "decrease":
+      quantity = -1
+    cart = Cart(request)
+    cart.add(product_id, quantity, True)
+  return redirect('cart_view')
+
+def remove_from_cart(request, product_id):
+  cart = Cart(request)
+  cart.remove(product_id)
+  return redirect('cart_view')
+
+def cart_view(request):
+  cart = Cart(request)
+  return render(request, 'store/cart_view.html', { 'cart': cart})
 
 def search(request):
   query = request.GET.get('query', '')
@@ -17,3 +43,4 @@ def category_detail(request, slug):
 def product_detail(request, category_slug, slug):
   product = get_object_or_404(Product, slug=slug, status=Product.ACTIVE)
   return render(request, 'store/product_detail.html', {'product':product})
+
