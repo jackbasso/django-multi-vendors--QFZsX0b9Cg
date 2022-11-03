@@ -38,7 +38,7 @@ def add_product(request):
   else:
     form = ProductForm()
 
-  return render(request, 'userprofile/add_product.html', { 'form':form, 'title':'Add product' })
+  return render(request, 'userprofile/product_form.html', { 'form':form, 'title':'Add product' })
 
 @login_required
 def edit_product(request, pk):
@@ -54,7 +54,7 @@ def edit_product(request, pk):
       return redirect('my_store')
   else:
     form = ProductForm(instance=product) # fill the form with product info
-  return render(request, 'userprofile/add_product.html', { 'form':form, 'title':'Edit product', 'product':product })
+  return render(request, 'userprofile/product_form.html', { 'form':form, 'title':'Edit product', 'product':product })
 
 @login_required
 def delete_product(request, pk):
