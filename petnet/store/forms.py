@@ -8,19 +8,18 @@ class ProductForm(forms.ModelForm):
         fields = ('category','title', 'description', 'price', 'image')
         widgets = {
             'category': forms.Select(attrs={
-                'class': 'w-full p-4 border border-gray-200'
+                'class': 'w-full border border-gray-200'
             }),
             'title': forms.TextInput(attrs={
-                'class': 'w-full p-4 border border-gray-200'
+                'class': 'w-full border border-gray-200'
             }),
             'description': forms.Textarea(attrs={
-                'class': 'w-full p-4 border border-gray-200'
+                'class': 'w-full border border-gray-200'
             }),
             'price': forms.TextInput(attrs={
-                'class': 'w-full p-4 border border-gray-200'
+                'class': 'w-full border border-gray-200'
             }),
-            'image': forms.TextInput(attrs={
+            'image': forms.FileInput(attrs={
                 'class': 'w-full p-4 border border-gray-200'
-            }),
-
+            })
         }

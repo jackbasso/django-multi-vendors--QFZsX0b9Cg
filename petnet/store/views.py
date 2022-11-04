@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q  #For searchs
 from django.shortcuts import render, get_object_or_404, redirect
 from .cart import Cart
@@ -27,6 +28,11 @@ def remove_from_cart(request, product_id):
 def cart_view(request):
   cart = Cart(request)
   return render(request, 'store/cart_view.html', { 'cart': cart})
+
+@login_required
+def checkout(request):
+  cart = Cart(request)
+  return render(request, 'store/checkout.html', {'cart': cart})
 
 def search(request):
   query = request.GET.get('query', '')
