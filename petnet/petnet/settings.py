@@ -62,6 +62,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'petnet.urls'
 
+STRIPE_PUB_KEY = 'pk_test_51M0bLQEipZ4Xa5crWtmVYAob9Y8gzxtG3ji0pOUD3eZLZYFNQqsu4qpugZropObApc9MfutpjDuXTF4n9dY416DL00ExaJHNhW'
+STRIPE_SECRET_KEY = 'sk_test_51M0bLQEipZ4Xa5crSwsOk2OpATd7mjc3n2mJhVfltyDIAfuMHPmVZF96AsUkM1CF0Gy9tmwbkIMCXnFO7jymx9a900NniJfcTB'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -73,6 +76,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'store.context_processors.cart', # Making cart global
             ],
         },
     },

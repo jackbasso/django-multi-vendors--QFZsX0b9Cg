@@ -1,9 +1,16 @@
+# stripe imports
+import json
+import stripe
+from django.http import JsonResponse
+
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q  #For searchs
 from django.shortcuts import render, get_object_or_404, redirect
 from .cart import Cart
+from .forms import OrderForm
 
-from .models import Category, Product
+from .models import Category, Product, Order, OrderItem
 
 def add_to_cart(request, product_id):
   cart = Cart(request) # create new instance for the cart
@@ -32,7 +39,61 @@ def cart_view(request):
 @login_required
 def checkout(request):
   cart = Cart(request)
-  return render(request, 'store/checkout.html', {'cart': cart})
+  if request.method == 'POST':
+    data = json.loads(request.body) # comming from checkout.html stripe js script
+    form = OrderForm(request.POST)
+    
+    total_price = 0
+    items = []
+
+    for item in cart:
+      product = item['product']
+      total_price = product.price * int(item['quantity'])
+      items.append({
+        'price_data': {
+          'currency': 'usd',
+          'product_data': {
+            'name': product.title,
+          },
+          'unit_amount': product.price
+        },
+        'quantity': item['quantity']
+      })
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    session = stripe.checkout.Session.create(
+      payment_method_types = ['card'],
+      line_items = items,
+      mode = 'payment',
+      success_url='http://127.0.0.1:8000/cart/success/',
+      cancel_url = 'http://127.0.0.1:8000/cart/'
+    )
+    payment_intent = session.payment_intent
+
+    order = Order.objects.create(
+      first_name = data['first_name'],
+      last_name = data['last_name'],
+      address = data['address'],
+      email = data['email'],
+      zipcode = data['zipcode'],
+      city = data['city'],
+      created_by = request.user,
+      is_paid = True,
+      payment_intent = payment_intent,
+      paid_amount = total_price
+    )
+
+    for item in cart:
+      product = item['product']
+      quantity = int(item['quantity'])
+      price = product.price * quantity
+      item = OrderItem.objects.create(order=order, product=product, price=price, quantity=quantity)
+
+    cart.clear()
+    return JsonResponse({'session': session, 'order': payment_intent})
+  else:
+    form = OrderForm()
+
+  return render(request, 'store/checkout.html', {'cart': cart, 'form': form, 'pub_key':settings.STRIPE_PUB_KEY,})
 
 def search(request):
   query = request.GET.get('query', '')
