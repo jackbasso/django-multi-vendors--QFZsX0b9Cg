@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-4kz_(zxvlhbv4x5!o4behgukc-i1_of*fx4d3@q0@aa4t0qg$+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['www.petnet.com', 'petnet.com']
 
 CART_SESSION_ID = 'cart'
 SESSION_COOKIE_AGE = 86400
@@ -62,7 +62,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'petnet.urls'
 
-WEBSITE_URL = 'http://127.0.0.1:8000/'
+WEBSITE_URL = 'http://petnet.com/'
 
 STRIPE_PUB_KEY = 'pk_test_51M0bLQEipZ4Xa5crWtmVYAob9Y8gzxtG3ji0pOUD3eZLZYFNQqsu4qpugZropObApc9MfutpjDuXTF4n9dY416DL00ExaJHNhW'
 STRIPE_SECRET_KEY = 'sk_test_51M0bLQEipZ4Xa5crSwsOk2OpATd7mjc3n2mJhVfltyDIAfuMHPmVZF96AsUkM1CF0Gy9tmwbkIMCXnFO7jymx9a900NniJfcTB'

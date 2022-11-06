@@ -17,6 +17,9 @@ def add_to_cart(request, product_id):
   cart.add(product_id) # add product id
   return redirect('cart_view')
 
+def success(request):
+  return render(request, 'store/success.html')
+
 def change_quantity(request, product_id):
   action = request.GET.get('action', '')
   if action:
@@ -38,62 +41,83 @@ def cart_view(request):
 
 @login_required
 def checkout(request):
-  cart = Cart(request)
-  if request.method == 'POST':
-    data = json.loads(request.body) # comming from checkout.html stripe js script
-    form = OrderForm(request.POST)
-    
-    total_price = 0
-    items = []
+    cart = Cart(request)
 
-    for item in cart:
-      product = item['product']
-      total_price = product.price * int(item['quantity'])
-      items.append({
-        'price_data': {
-          'currency': 'usd',
-          'product_data': {
-            'name': product.title,
-          },
-          'unit_amount': product.price
-        },
-        'quantity': item['quantity']
-      })
-    stripe.api_key = settings.STRIPE_SECRET_KEY
-    session = stripe.checkout.Session.create(
-      payment_method_types = ['card'],
-      line_items = items,
-      mode = 'payment',
-      success_url='http://127.0.0.1:8000/cart/success/',
-      cancel_url = 'http://127.0.0.1:8000/cart/'
-    )
-    payment_intent = session.payment_intent
+    if cart.get_total_cost() == 0:
+        return redirect('cart_view')
 
-    order = Order.objects.create(
-      first_name = data['first_name'],
-      last_name = data['last_name'],
-      address = data['address'],
-      email = data['email'],
-      zipcode = data['zipcode'],
-      city = data['city'],
-      created_by = request.user,
-      is_paid = True,
-      payment_intent = payment_intent,
-      paid_amount = total_price
-    )
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        first_name = data['first_name']
+        last_name = data['last_name']
+        address = data['address']
+        email = data['email']
+        zipcode = data['zipcode']
+        city = data['city']
 
-    for item in cart:
-      product = item['product']
-      quantity = int(item['quantity'])
-      price = product.price * quantity
-      item = OrderItem.objects.create(order=order, product=product, price=price, quantity=quantity)
+        if first_name and last_name and address and zipcode and city:
+            form = OrderForm(request.POST)
 
-    cart.clear()
-    return JsonResponse({'session': session, 'order': payment_intent})
-  else:
-    form = OrderForm()
+            total_price = 0
+            items = []
 
-  return render(request, 'store/checkout.html', {'cart': cart, 'form': form, 'pub_key':settings.STRIPE_PUB_KEY,})
+            for item in cart:
+                product = item['product']
+                total_price += product.price * int(item['quantity'])
+
+                items.append({
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {
+                            'name': product.title,
+                        },
+                        'unit_amount': product.price
+                    },
+                    'quantity': item['quantity']
+                })
+            
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+            session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=items,
+                mode='payment',
+                success_url=f'{settings.WEBSITE_URL}cart/success/',
+                cancel_url=f'{settings.WEBSITE_URL}cart/',
+            )
+            payment_intent = session.payment_intent
+
+            order = Order.objects.create(
+                first_name=first_name,
+                last_name=last_name,
+                address=address,
+                email=email,
+                zipcode=zipcode,
+                city=city,
+                created_by = request.user,
+                is_paid = True,
+                payment_intent = payment_intent,
+                paid_amount = total_price
+            )
+
+            for item in cart:
+                product = item['product']
+                quantity = int(item['quantity'])
+                price = product.price * quantity
+
+                item = OrderItem.objects.create(order=order, product=product, price=price, quantity=quantity)
+
+            cart.clear()
+
+            return JsonResponse({'session': session, 'order': payment_intent})
+    else:
+        form = OrderForm()
+
+    return render(request, 'store/checkout.html', {
+        'cart': cart,
+        'form': form,
+        'pub_key': settings.STRIPE_PUB_KEY,
+    })
+
 
 def search(request):
   query = request.GET.get('query', '')
